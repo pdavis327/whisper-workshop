@@ -18,7 +18,7 @@ spec:
             #!/bin/bash
 
             echo "
-            GIT_REPO=https://github.com/redhat-ai-americas/whisper-workshop.git
+            GIT_REPO=https://github.com/pdavis327/whisper-workshop.git
 
             [ -e ~/whisper-workshop ] || git clone \${GIT_REPO}
             [ -e ~/whisper-workshop ] && cd ~/whisper-workshop

@@ -50,7 +50,7 @@ See [Prerequisites](/docs/prerequisites.md).
 - [ ] Clone this repository and enter the directory.
 
 ```sh
-git clone https://github.com/redhat-ai-americas/whisper-workshop.git
+git clone https://github.com/pdavis327/whisper-workshop.git
 
 cd whisper-workshop
 ```

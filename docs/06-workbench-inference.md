@@ -70,7 +70,7 @@ In JupyterLab: File → New → Terminal:
 
 ```sh
 cd /opt/app-root/src
-git clone https://github.com/redhat-ai-americas/whisper-workshop.git
+git clone https://github.com/pdavis327/whisper-workshop.git
 ```
 
 Open [`extras/notebooks/01-transcribe-translate.ipynb`](/extras/notebooks/01-transcribe-translate.ipynb).
