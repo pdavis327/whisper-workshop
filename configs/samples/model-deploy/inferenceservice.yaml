@@ -1,0 +1,34 @@
+# Whisper large-v3 InferenceService (RawDeployment). Apply after vllm-servingruntime.yaml.
+# Replace storageUri with the modelcar you pushed in Topic 3.
+# Requires a GPU node and pull access to the vLLM runtime image + your Quay modelcar.
+# Namespace: whisper-workshop. Add opendatahub.io/connections if the registry is private.
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    opendatahub.io/hardware-profile-name: nvidia-gpu
+    opendatahub.io/hardware-profile-namespace: redhat-ods-applications
+    opendatahub.io/model-type: generative
+    openshift.io/description: "Whisper large-v3 speech-to-text and speech-to-English translation"
+    openshift.io/display-name: whisper-large-v3
+    security.opendatahub.io/enable-auth: "true"
+    serving.kserve.io/deploymentMode: RawDeployment
+  labels:
+    networking.kserve.io/visibility: exposed
+    opendatahub.io/dashboard: "true"
+  name: whisper-large-v3
+  namespace: whisper-workshop
+spec:
+  predictor:
+    automountServiceAccountToken: false
+    deploymentStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+    model:
+      modelFormat:
+        name: vLLM
+      name: ""
+      runtime: whisper-large-v3
+      storageUri: oci://quay.io/REPLACE_ORG/whisper-large-v3:1

@@ -1,0 +1,11 @@
+# Facilitator: apply so whisper-workshop appears as an OpenShift AI project in the dashboard.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: whisper-workshop
+  labels:
+    opendatahub.io/dashboard: "true"
+    modelmesh-enabled: "false"
+  annotations:
+    openshift.io/display-name: "Whisper Workshop"
+    openshift.io/description: "Real-time AI transcription and translation with Whisper on OpenShift AI 3.4"

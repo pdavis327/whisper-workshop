@@ -1,0 +1,9 @@
+scratch/**
+!scratch/.gitkeep
+models/
+auth/**
+logs/
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
