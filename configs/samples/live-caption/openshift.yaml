@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: whisper-live-caption
+  namespace: whisper-demo
+  labels:
+    app: whisper-live-caption
+---
+# Same ClusterRole the workbench webhook binds to notebook SAs.
+# kubernetes-namespaced MLflow auth SubjectAccessReviews this SA.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: whisper-live-caption-mlflow
+  namespace: whisper-demo
+  labels:
+    app: whisper-live-caption
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mlflow-operator-mlflow-integration
+subjects:
+  - kind: ServiceAccount
+    name: whisper-live-caption
+    namespace: whisper-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whisper-live-caption
+  namespace: whisper-demo
+  labels:
+    app: whisper-live-caption
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whisper-live-caption
+  template:
+    metadata:
+      labels:
+        app: whisper-live-caption
+    spec:
+      serviceAccountName: whisper-live-caption
+      containers:
+        - name: live-caption
+          image: quay.io/rh-ee-petdavis/whisper-live-caption:6
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - secretRef:
+                name: whisper-live-caption
+          env:
+            - name: WHISPER_VERIFY_SSL
+              value: "false"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whisper-live-caption
+  namespace: whisper-demo
+spec:
+  selector:
+    app: whisper-live-caption
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: whisper-live-caption
+  namespace: whisper-demo
+spec:
+  to:
+    kind: Service
+    name: whisper-live-caption
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

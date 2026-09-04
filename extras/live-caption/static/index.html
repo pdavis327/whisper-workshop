@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Whisper live caption</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main class="panel">
+    <header>
+      <h1>Whisper live caption</h1>
+      <p class="lede">
+        Microphone audio is sent to your private Whisper route on OpenShift.
+        Translation is <strong>speech → English only</strong>.
+      </p>
+    </header>
+
+    <section class="controls" aria-label="Recording controls">
+      <label class="field">
+        <span>Mode</span>
+        <select id="mode">
+          <option value="translations">Translate → English</option>
+          <option value="transcriptions">Transcribe (same language)</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Capture</span>
+        <select id="captureMode">
+          <option value="vad">Send on pause</option>
+          <option value="fixed">Fixed interval chunks</option>
+        </select>
+      </label>
+
+      <label class="field" id="chunkSecField">
+        <span>Chunk length (seconds)</span>
+        <input id="chunkSec" type="number" min="2" max="15" value="6" />
+      </label>
+
+      <label class="field checkbox">
+        <input id="streamLine" type="checkbox" checked />
+        <span>Continuous line (append chunks like captions)</span>
+      </label>
+
+      <div class="buttons">
+        <button id="startBtn" type="button">Start microphone</button>
+        <button id="stopBtn" type="button" disabled>Stop</button>
+        <button id="clearBtn" type="button">Clear</button>
+      </div>
+
+      <p id="status" class="status" role="status">Checking configuration…</p>
+    </section>
+
+    <section class="output" aria-live="polite">
+      <h2>Transcript</h2>
+      <div id="log" class="log">
+        <p id="liveLine" class="live-line hidden">
+          <span id="liveText"></span><span id="cursor" class="cursor hidden" aria-hidden="true">▍</span>
+        </p>
+        <div id="chunkLog" class="chunk-log hidden"></div>
+      </div>
+    </section>
+
+    <footer class="footnote">
+      <p>
+        POC demo — not broadcast captions. See <code>README.md</code> for accuracy limits and production paths.
+      </p>
+    </footer>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
