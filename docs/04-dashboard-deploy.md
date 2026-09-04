@@ -22,7 +22,7 @@
 - Token auth means every later `curl` or notebook call needs `Authorization: Bearer`.
 - First start includes pulling the modelcar and loading encoder–decoder weights — budget several minutes on a cold node.
 
-Deploying models: [OpenShift AI 3.4 — Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/deploying_models/index).
+Deploying models: [OpenShift AI 3.5 — Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/deploying_models/index).
 
 ## Open the Deploy model flow
 

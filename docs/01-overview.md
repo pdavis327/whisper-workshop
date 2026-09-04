@@ -6,6 +6,8 @@
 <a href="/docs/02-catalog-and-model-choice.md">Next</a>
 </p>
 
+Facilitator: clone the repo and present [docs/slides/value-prop.html](/docs/slides/value-prop.html) in a local browser (`n` toggles speaker notes). GitHub shows the HTML source, not the slides. This page is the same story for participants who are reading.
+
 ### Objectives (~15 min)
 
 - Explain why speech-to-text often must stay inside the OpenShift cluster.
@@ -20,23 +22,27 @@
 
 - Audio never needs to leave the cluster once Whisper is served on the single-model platform.
 - vLLM exposes `/v1/audio/transcriptions` (speech → same language) and `/v1/audio/translations` (speech → **English only**). Native Whisper translation is not an arbitrary language pair.
-- `stream=true` streams **tokens for a complete clip**. It is not continuous microphone ASR. Live captions need a later browser app.
+- `stream=true` streams **tokens for a complete clip**. It is not continuous microphone ASR. After Topic 6, the optional [live-caption POC](/extras/live-caption/README.md) is the browser-mic path.
 
 ## Why on-prem ASR
 
-Cloud transcription sends voice off-site. That is a non-starter for many of the rooms this workshop is built for:
+**ASR (automatic speech recognition)** turns spoken audio into text. Cloud ASR sends that voice off-site. That is a non-starter for many of the rooms this workshop is built for — and it adds a round-trip you do not need when the recordings already live next to the cluster.
 
 | Setting | Why the audio stays here |
 |---------|--------------------------|
+| Contact centers | Every call is customer PII; recordings already sit on the operator network |
+| Dispatch / public safety | Radio and incident audio is regulated and time-critical |
+| Telecom | Voice traffic and call recordings must stay on the carrier network |
 | Healthcare | Patient speech is PHI |
 | Financial services | Recorded advice and KYC calls |
 | Public sector / air-gapped | No outbound API by design |
 | Legal / HR | Privilege and personnel data |
-| Contact centers | Every call is customer PII |
+
+**Latency is part of the sale, not only privacy.** Skipping a public-cloud ASR hop means you do not upload bulky audio over the WAN and wait for a SaaS queue. Transcription and speech-to-English run on the GPU beside the recordings. That end-to-end path is faster than “ship the call to the cloud and wait.” It is **not** a claim that `whisper-large-v3` decodes faster than a hyperscaler’s Whisper API — on the GPU, turbo is still the latency SKU; large-v3 is the SKU that still speaks `/v1/audio/translations`.
 
 Whisper on OpenShift AI is the same class of workload as Granite on KServe: one `InferenceService`, one GPU, an OpenAI-compatible route, token auth. The difference is the payload: **multipart audio**, not JSON chat.
 
-Product docs: [Deploying models on the single-model serving platform](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/deploying_models/index). Background: [Private transcription with Whisper and Red Hat AI](https://developers.redhat.com/articles/2026/03/06/private-transcription-whisper-red-hat-ai).
+Product docs: [Deploying models on the single-model serving platform](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/deploying_models/index). Background: [Private transcription with Whisper and Red Hat AI](https://developers.redhat.com/articles/2026/03/06/private-transcription-whisper-red-hat-ai).
 
 ## What vLLM actually serves
 
@@ -68,7 +74,7 @@ Full diagram: [architecture](/docs/architecture.md).
 
 | Approach | Typical use |
 |----------|-------------|
-| Model catalog | Discover Red Hat–validated images; fast STT demos (often **turbo**, no translation API) |
+| Model catalog | Discover Red Hat–validated audio models (Whisper large, turbo, Voxtral). Turbo is still the wrong pick for native translation. |
 | OCI modelcar | Pack Hugging Face weights in `/models`; versioned, pull-at-serve-time |
 | PVC | Upload from a workbench; fine for small artifacts, awkward for multi-gigabyte Whisper |
 
@@ -84,7 +90,7 @@ This workshop uses a **modelcar of `openai/whisper-large-v3`** so `/v1/audio/tra
 
 - “Same KServe path you use for Granite — different HTTP API.”
 - “Translation in Whisper means **into English**, not Spanish ↔ German. Arbitrary target languages need a second LLM.”
-- “We will prove serving with files in a workbench. The mic demo is a follow-on app; the pod cannot hear your laptop.”
+- “We will prove serving with files in a workbench. The mic demo is [extras/live-caption](/extras/live-caption/README.md); the workbench pod cannot hear your laptop.”
 
 <p align="center">
 <a href="/docs/00-setup.md">Prev</a>

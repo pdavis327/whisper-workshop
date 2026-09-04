@@ -22,7 +22,7 @@
 - Weights are **not** in Git. They live under `scratch/model-build/` (ignored).
 - For a live customer briefing, the facilitator should **pre-push** the image so the room does not wait on ~3 GB.
 
-Official pattern: [Build and deploy a ModelCar container in OpenShift AI](https://developers.redhat.com/articles/2025/01/30/build-and-deploy-modelcar-container-openshift-ai). Platform storage: [Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/deploying_models/index) (OCI / modelcar).
+Official pattern: [Build and deploy a ModelCar container in OpenShift AI](https://developers.redhat.com/articles/2025/01/30/build-and-deploy-modelcar-container-openshift-ai). Platform storage: [Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/deploying_models/index) (OCI / modelcar).
 
 ## Facilitator skip
 

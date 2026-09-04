@@ -1,6 +1,6 @@
 # Architecture
 
-Speech in, text out, on the OpenShift AI 3.4 single-model serving platform (KServe RawDeployment) with vLLM.
+Speech in, text out, on the OpenShift AI 3.5 single-model serving platform (KServe RawDeployment) with vLLM.
 
 ```mermaid
 flowchart LR
@@ -25,7 +25,7 @@ flowchart LR
 4. Weights load from the OCI modelcar KServe materializes at `/mnt/models`.
 5. Transcription returns source-language text. Translation returns **English** text.
 
-Workbench pods **do not** see the presenter’s microphone. Live capture is a future browser app (`getUserMedia` → chunked POSTs). vLLM `stream=true` streams **output tokens for one file**, not an unbounded mic session.
+Workbench pods **do not** see the presenter’s microphone. After Topic 6, the optional [live-caption POC](/extras/live-caption/README.md) is a browser app (`getUserMedia` → chunked POSTs). vLLM `stream=true` still streams **output tokens for one file**, not an unbounded mic session.
 
 ## Kubernetes objects
 
@@ -46,4 +46,4 @@ Workbench pods **do not** see the presenter’s microphone. Live capture is a fu
 | POST | `/v1/audio/transcriptions` | Speech → text |
 | POST | `/v1/audio/translations` | Speech → English (`whisper-large-v3` only, not turbo) |
 
-Upstream: [vLLM speech-to-text](https://docs.vllm.ai/en/latest/serving/online_serving/speech_to_text/). Platform: [Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/deploying_models/index).
+Upstream: [vLLM speech-to-text](https://docs.vllm.ai/en/latest/serving/online_serving/speech_to_text/). Platform: [Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/deploying_models/index).

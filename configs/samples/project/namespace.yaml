@@ -8,4 +8,4 @@ metadata:
     modelmesh-enabled: "false"
   annotations:
     openshift.io/display-name: "Whisper Workshop"
-    openshift.io/description: "Real-time AI transcription and translation with Whisper on OpenShift AI 3.4"
+    openshift.io/description: "Real-time AI transcription and translation with Whisper on OpenShift AI 3.5"

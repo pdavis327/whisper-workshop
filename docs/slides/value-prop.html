@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Private speech AI on OpenShift AI 3.5</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e8eef7;
+      --muted: #9fb0c5;
+      --accent: #ee0000;
+      --ok: #3d8f63;
+      --warn: #f0a202;
+      --border: #2d3a4d;
+      --font: "Red Hat Text", "Red Hat Display", "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .deck {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding: 4.5rem 5rem 5.5rem;
+      background:
+        radial-gradient(circle at top right, #2a1520 0%, transparent 42%),
+        radial-gradient(circle at top left, #1f2a3d 0%, var(--bg) 55%);
+    }
+
+    .slide.active { display: flex; flex-direction: column; justify-content: center; }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 0 0.85rem;
+    }
+
+    h1, h2 {
+      margin: 0 0 1.1rem;
+      line-height: 1.15;
+      font-weight: 700;
+    }
+
+    h1 { font-size: clamp(2.4rem, 5vw, 3.4rem); max-width: 18ch; }
+    h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); max-width: 22ch; }
+
+    p, li { font-size: 1.35rem; line-height: 1.45; color: var(--text); }
+    .lede { font-size: 1.5rem; max-width: 42rem; color: var(--muted); }
+
+    ul { margin: 0.4rem 0 0; padding-left: 1.2rem; max-width: 48rem; }
+    li { margin: 0.55rem 0; }
+    li strong { color: #fff; }
+
+    .sub { color: var(--muted); font-size: 1.15rem; margin-top: 1.25rem; max-width: 40rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .card {
+      background: color-mix(in srgb, var(--panel) 88%, black);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+    }
+
+    .card h3 {
+      margin: 0 0 0.45rem;
+      font-size: 1.15rem;
+      color: #fff;
+    }
+
+    .card p, .card li { font-size: 1.05rem; color: var(--muted); margin: 0; }
+    .card ul { padding-left: 1.1rem; margin: 0.2rem 0 0; }
+    .card li { margin: 0.3rem 0; }
+
+    .card.accent { border-top: 3px solid var(--accent); }
+    .card.ok { border-top: 3px solid var(--ok); }
+    .card.warn { border-top: 3px solid var(--warn); }
+
+    .path {
+      font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 1.2rem;
+      background: #111821;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      margin: 0.45rem 0;
+      color: #d7e6ff;
+    }
+
+    .compare {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 1.05rem;
+    }
+
+    .compare th, .compare td {
+      text-align: left;
+      padding: 0.7rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .compare th { color: var(--muted); font-weight: 600; }
+    .compare td:first-child, .compare th:first-child { color: #fff; font-weight: 600; }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 22%, transparent);
+      color: #ffb4b4;
+      margin-bottom: 0.5rem;
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.55rem 1.25rem;
+      background: #111821;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .bar b { color: var(--text); }
+    .progress {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+    }
+
+    .notes {
+      display: none;
+      margin-top: 1.25rem;
+      padding: 0.9rem 1rem;
+      border-left: 3px solid var(--accent);
+      background: color-mix(in srgb, var(--panel) 70%, black);
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 48rem;
+    }
+
+    body.show-notes .notes { display: block; }
+    body.show-notes .slide { justify-content: flex-start; padding-top: 3.2rem; }
+
+    kbd {
+      font-family: inherit;
+      font-size: 0.8em;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      padding: 0.05rem 0.35rem;
+      background: #151c26;
+    }
+
+    .help {
+      display: none;
+      position: absolute;
+      inset: auto 1.5rem 4.2rem auto;
+      background: #151c26;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      z-index: 2;
+    }
+
+    body.show-help .help { display: block; }
+
+    .title-meta { color: var(--muted); font-size: 1.2rem; margin-top: 1.4rem; }
+
+    @media print {
+      html, body, .deck { height: auto; overflow: visible; background: #fff; color: #111; }
+      .bar, .help { display: none !important; }
+      .slide {
+        display: flex !important;
+        position: relative;
+        page-break-after: always;
+        min-height: 100vh;
+        background: #fff;
+        color: #151515;
+      }
+      h1, h2, .card h3, .compare td:first-child { color: #151515; }
+      p, li, .lede, .sub, .card p, .card li, .compare th { color: #333; }
+      .path { background: #f4f4f4; color: #111; }
+      .notes { display: block; color: #444; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+
+    <section class="slide active" data-notes="Open in a browser from a local clone. Fullscreen with F. This deck is the customer briefing for Topic 1 — not a product pitch detached from the labs.">
+      <p class="eyebrow">Red Hat OpenShift AI 3.5</p>
+      <h1>Private speech AI on your cluster</h1>
+      <p class="lede">Transcription and translation with Whisper on KServe — same OpenAI-shaped APIs, audio that never leaves the building.</p>
+      <p class="title-meta">Value briefing · whisper-workshop</p>
+    </section>
+
+    <section class="slide" data-notes="These two bullets are the README learning outcomes. The rest of the deck exists so a room can leave Topic 1 able to say them without hedging.">
+      <p class="eyebrow">What this briefing is for</p>
+      <h2>Two things the room should be able to say</h2>
+      <ul>
+        <li>Why speech stays on-cluster (PII, regulated audio) — and how vLLM exposes Whisper as OpenAI-compatible <code>/v1/audio/transcriptions</code> and <code>/v1/audio/translations</code>.</li>
+        <li>How to find audio models in the OpenShift AI catalog, and why <strong>turbo</strong> is the wrong catalog pick when you need native translation.</li>
+      </ul>
+    </section>
+
+    <section class="slide" data-notes="Granite comparison is the bridge for platform teams who already serve LLMs. Do not let the room think this is a chat playground.">
+      <p class="eyebrow">The workload</p>
+      <h2>Voice is not another chatbot</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>What they already know</h3>
+          <p>Granite on KServe: one InferenceService, one GPU, token-authenticated route, OpenAI client.</p>
+        </div>
+        <div class="card accent">
+          <h3>What is different</h3>
+          <p>The payload is <strong>multipart audio</strong>, not JSON chat. Pointing a playground at Whisper fails.</p>
+        </div>
+      </div>
+      <p class="sub">Same serving platform. Different HTTP API. That is the whole technical story.</p>
+    </section>
+
+    <section class="slide" data-notes="ASR = automatic speech recognition. Define it once, then use it. Lead with contact center / dispatch / telecom — that is the room this workshop is built for. Do not name a specific radio vendor.">
+      <p class="eyebrow">Why on-prem ASR</p>
+      <h2>Start where the calls already are</h2>
+      <p class="lede">ASR (automatic speech recognition) turns speech into text. Cloud ASR sends that voice off-site.</p>
+      <div class="grid">
+        <div class="card accent">
+          <h3>Contact centers</h3>
+          <p>Every call is customer PII. Recordings already sit on the operator network.</p>
+        </div>
+        <div class="card accent">
+          <h3>Dispatch / public safety</h3>
+          <p>Radio and incident audio is regulated and time-critical. It cannot traverse a public API.</p>
+        </div>
+        <div class="card accent">
+          <h3>Telecom</h3>
+          <p>Voice traffic and call recordings stay on the carrier network — by architecture, not by preference.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-notes="Keep this slide short. The first setting is contact/dispatch/telecom; this is the rest of the compliance map.">
+      <p class="eyebrow">Same constraint, more rooms</p>
+      <h2>Regulated audio is the default, not the exception</h2>
+      <table class="compare">
+        <tr><th>Setting</th><th>Why the audio stays here</th></tr>
+        <tr><td>Healthcare</td><td>Patient speech is PHI</td></tr>
+        <tr><td>Financial services</td><td>Recorded advice and KYC calls</td></tr>
+        <tr><td>Public sector / air-gapped</td><td>No outbound API by design</td></tr>
+        <tr><td>Legal / HR</td><td>Privilege and personnel data</td></tr>
+      </table>
+    </section>
+
+    <section class="slide" data-notes="Yes, lower latency is a real selling point — as end-to-end time, not GPU bragging. Contact-center audio is already next to the cluster. Uploading it to a SaaS ASR is the slow part.">
+      <p class="eyebrow">Latency</p>
+      <h2>On-cluster also means fewer milliseconds</h2>
+      <ul>
+        <li>You skip the <strong>WAN upload</strong> of bulky audio to a public-cloud ASR.</li>
+        <li>You skip the <strong>SaaS queue</strong> on the other side of that hop.</li>
+        <li>Transcription and speech-to-English run on the <strong>GPU beside the recordings</strong>.</li>
+      </ul>
+      <p class="sub">Privacy and speed are the same architecture: the audio never leaves the building.</p>
+    </section>
+
+    <section class="slide" data-notes="Be honest if someone from performance engineering is in the room. Turbo is still faster on the GPU. Large-v3 is the translation checkpoint. vLLM Whisper is clip-based, not continuous mic ASR.">
+      <p class="eyebrow">Say this out loud</p>
+      <h2>What “faster” does and does not mean</h2>
+      <div class="grid">
+        <div class="card ok">
+          <span class="tag">True</span>
+          <h3>End-to-end path</h3>
+          <p>No internet round-trip, no audio leaving the datacenter. For contact-center and dispatch traffic that already lives on-prem, that hop dominates.</p>
+        </div>
+        <div class="card warn">
+          <span class="tag">Not the claim</span>
+          <h3>Raw decode vs a hyperscaler</h3>
+          <p>We are not saying large-v3 beats a cloud Whisper API on GPU speed. Turbo is the latency SKU. Large-v3 is the SKU that still translates.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-notes="Draw the path with your hand if you have a whiteboard. Route → InferenceService → vLLM → two POSTs.">
+      <p class="eyebrow">How vLLM exposes Whisper</p>
+      <h2>OpenAI-compatible — audio, not chat</h2>
+      <div class="path">POST /v1/audio/transcriptions&nbsp;&nbsp;→&nbsp;&nbsp;speech to text (source language)</div>
+      <div class="path">POST /v1/audio/translations&nbsp;&nbsp;→&nbsp;&nbsp;speech to English text</div>
+      <div class="path">GET&nbsp; /v1/models&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;&nbsp;served-model-name</div>
+      <p class="sub">HTTPS + Bearer token on an OpenShift Route. Same client libraries you already use for chat — different paths.</p>
+    </section>
+
+    <section class="slide" data-notes="Native Whisper translation is English-only. Arbitrary language pairs need a second LLM. Do not oversell 'real-time translation' as Spanish ↔ German.">
+      <p class="eyebrow">Translation is a product word</p>
+      <h2>Whisper translates into English. Full stop.</h2>
+      <ul>
+        <li><strong>Transcription</strong> keeps the source language.</li>
+        <li><strong>Translation</strong> is speech → <strong>English only</strong>, and only on a non-turbo checkpoint.</li>
+        <li>Spanish ↔ German (or any arbitrary pair) is a second model, not this API.</li>
+      </ul>
+    </section>
+
+    <section class="slide" data-notes="Catalog is the AI hub discovery story. In 3.5 the shelf is no longer turbo-only.">
+      <p class="eyebrow">Catalog in 3.5</p>
+      <h2>Audio models are on the shelf now</h2>
+      <p class="lede">AI hub → Models → Catalog. Search <strong>audio</strong>, <strong>speech</strong>, <strong>whisper</strong>, or <strong>voxtral</strong>.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Whisper large</h3>
+          <p>Non-turbo checkpoint. Native <code>/v1/audio/translations</code>. Valid catalog path when translation matters.</p>
+        </div>
+        <div class="card warn">
+          <h3>Whisper turbo</h3>
+          <p>Fast private STT (speech-to-text). vLLM: turbo <strong>does not support translating</strong>.</p>
+        </div>
+        <div class="card">
+          <h3>Voxtral</h3>
+          <p>Mistral speech model. Voice-agent / understanding story — not a Whisper drop-in.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-notes="This is the second README outcome. Shipping turbo because it is labeled Whisper silently drops translations. That is the briefing failure mode.">
+      <p class="eyebrow">Model choice</p>
+      <h2>Turbo is the wrong default for translation</h2>
+      <table class="compare">
+        <tr><th></th><th>Turbo</th><th>Whisper large / large-v3</th></tr>
+        <tr><td>Task</td><td>Transcription</td><td>Transcription and speech → English</td></tr>
+        <tr><td>/v1/audio/translations</td><td>Not supported</td><td>Supported</td></tr>
+        <tr><td>GPU</td><td>Smaller, faster</td><td>Plan 16 GB+ VRAM</td></tr>
+        <tr><td>Use it when</td><td>Private STT, latency SKU</td><td>The title on the slide is translation</td></tr>
+      </table>
+    </section>
+
+    <section class="slide" data-notes="Voxtral sitting next to Whisper in the catalog is the new confusion. Name it so the room does not grab the wrong card.">
+      <p class="eyebrow">Do not confuse the shelf</p>
+      <h2>Voxtral is a different product</h2>
+      <ul>
+        <li>It is a speech model on the same platform — good.</li>
+        <li>It is <strong>not</strong> Whisper’s OpenAI audio API (<code>/v1/audio/transcriptions</code> + <code>/v1/audio/translations</code>).</li>
+        <li>Save it for a voice-agent conversation. This workshop proves Whisper.</li>
+      </ul>
+    </section>
+
+    <section class="slide" data-notes="Workshop still builds a modelcar so they own the weights (air-gap, pin, scan). Catalog Whisper large is the honest shortcut for a customer who wants validated weights without a Containerfile.">
+      <p class="eyebrow">What we will actually serve</p>
+      <h2>This lab: openai/whisper-large-v3 as a modelcar</h2>
+      <ul>
+        <li>Catalog is how a data scientist <strong>finds</strong> a supported ASR model.</li>
+        <li>A modelcar is how you <strong>own</strong> the weights — versioned OCI, pull at serve time.</li>
+        <li>Same vLLM NVIDIA GPU runtime as Granite. Different <code>storageUri</code> and Whisper args.</li>
+      </ul>
+      <p class="sub">We are not fighting the catalog. We are matching weights to the customer outcome.</p>
+    </section>
+
+    <section class="slide" data-notes="Close on the two outcomes again. Then hand off to Topic 2 in the dashboard.">
+      <p class="eyebrow">Leave-behind</p>
+      <h2>Platform story in one breath</h2>
+      <ul>
+        <li><strong>Stay on-cluster</strong> because the audio is PII — and because you skip the cloud hop.</li>
+        <li><strong>Call it like OpenAI</strong> — <code>/v1/audio/transcriptions</code> and <code>/v1/audio/translations</code>.</li>
+        <li><strong>Read the catalog card</strong> — turbo does not translate; Voxtral is not Whisper; large-v3 does.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <aside class="help">
+    <div><kbd>←</kbd> <kbd>→</kbd> or <kbd>Space</kbd> change slides</div>
+    <div><kbd>N</kbd> speaker notes · <kbd>F</kbd> fullscreen · <kbd>?</kbd> this help</div>
+  </aside>
+
+  <footer class="bar">
+    <span><b id="idx">1</b> / <span id="total">1</span></span>
+    <div class="progress" aria-hidden="true"><span id="fill"></span></div>
+    <span>OpenShift AI 3.5 · Whisper value briefing</span>
+  </footer>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")];
+    const idxEl = document.getElementById("idx");
+    const totalEl = document.getElementById("total");
+    const fill = document.getElementById("fill");
+    let i = 0;
+    totalEl.textContent = String(slides.length);
+
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, k) => s.classList.toggle("active", k === i));
+      idxEl.textContent = String(i + 1);
+      fill.style.width = ((i + 1) / slides.length * 100) + "%";
+    }
+
+    function attachNotes() {
+      slides.forEach((s) => {
+        const text = s.getAttribute("data-notes");
+        if (!text) return;
+        const note = document.createElement("p");
+        note.className = "notes";
+        note.textContent = "Notes: " + text;
+        s.appendChild(note);
+      });
+    }
+
+    attachNotes();
+    show(0);
+
+    document.addEventListener("keydown", (e) => {
+      if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        show(i + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        show(i - 1);
+      } else if (e.key === "Home") {
+        show(0);
+      } else if (e.key === "End") {
+        show(slides.length - 1);
+      } else if (e.key === "n" || e.key === "N") {
+        document.body.classList.toggle("show-notes");
+      } else if (e.key === "f" || e.key === "F") {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      } else if (e.key === "?" || e.key === "h" || e.key === "H") {
+        document.body.classList.toggle("show-help");
+      }
+    });
+  </script>
+</body>
+</html>

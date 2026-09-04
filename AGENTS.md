@@ -1,6 +1,6 @@
 # whisper-workshop
 
-Workshop for real-time speech transcription and translation with Whisper on Red Hat OpenShift AI Self-Managed 3.4. This is a docs+configs repo — no build, test, lint, or CI pipeline.
+Workshop for real-time speech transcription and translation with Whisper on Red Hat OpenShift AI Self-Managed 3.5. This is a docs+configs repo — no build, test, lint, or CI pipeline.
 
 ## Commands
 

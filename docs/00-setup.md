@@ -10,7 +10,7 @@
 
 ## Official reference
 
-Architecture and procedures: [Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/deploying_models/index) (OpenShift AI Self-Managed 3.4, single-model / KServe RawDeployment).
+Architecture and procedures: [Deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/deploying_models/index) (OpenShift AI Self-Managed 3.5, single-model / KServe RawDeployment).
 
 ## Who does what
 
@@ -30,11 +30,12 @@ Participants do **not** apply cluster-scoped resources (HardwareProfile in `redh
 
 See [Prerequisites](/docs/prerequisites.md).
 
-- [ ] OpenShift AI Self-Managed **3.4** with KServe (single-model serving) enabled
+- [ ] OpenShift AI Self-Managed **3.5** with KServe (single-model serving) enabled
 - [ ] At least **one NVIDIA GPU with 16 GB+ VRAM** (L4, A10, L40S, A100, or similar). `whisper-large-v3` is heavier than turbo.
 - [ ] A registry (Quay.io or internal) the cluster can pull OCI modelcars from
 - [ ] `bash scripts/setup.sh -s 1` so `whisper-workshop` appears under AI projects
 - [ ] `bash scripts/sanity_check.sh` is clean (or GPU warn is understood)
+- [ ] [Value-prop slides](/docs/slides/value-prop.html) open in a **local** browser for the Topic 1 briefing (GitHub shows HTML source, not the slides)
 
 ## Participant checklist (~10 min)
 

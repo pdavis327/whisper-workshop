@@ -1,13 +1,13 @@
 # Workshop requirements and prerequisites
 
-Verify this list before a customer briefing. Aligns with [OpenShift AI 3.4 deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/deploying_models/index).
+Verify this list before a customer briefing. Aligns with [OpenShift AI 3.5 deploying models](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html-single/deploying_models/index).
 
 ## Cluster (facilitator)
 
 | Component | Expectation |
 |-----------|-------------|
-| **Red Hat OpenShift** | 4.16+ typical for AI 3.4 |
-| **Red Hat OpenShift AI** | Self-Managed **3.4** |
+| **Red Hat OpenShift** | 4.19+ typical for AI 3.5 |
+| **Red Hat OpenShift AI** | Self-Managed **3.5** |
 | **KServe** | Enabled / managed on the DataScienceCluster (single-model platform) |
 | **GPU** | NVIDIA GPU Operator + Node Feature Discovery |
 | **Capacity** | **1 GPU, 16 GB+ VRAM** for `whisper-large-v3` (not turbo) |
@@ -22,7 +22,7 @@ oc get nodes -o json | jq -r '.items[] | select(.status.allocatable["nvidia.com/
 
 ## OpenShift AI dashboard
 
-- [ ] You can open **AI hub → Models → Catalog**
+- [ ] You can open **AI hub → Models → Catalog** and see **Whisper large**, a **turbo** variant, and **Voxtral** (names vary by quantization)
 - [ ] A **GPU** hardware profile is visible when deploying models into `whisper-workshop`
 - [ ] Users can create a **CPU** workbench in that project
 

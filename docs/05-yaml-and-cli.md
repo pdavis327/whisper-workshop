@@ -36,7 +36,7 @@ oc -n redhat-ods-applications get servingruntime \
   -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image
 ```
 
-Edit [`configs/samples/model-deploy/vllm-servingruntime.yaml`](/configs/samples/model-deploy/vllm-servingruntime.yaml) and replace `image:` with the NVIDIA GPU vLLM image from that list. The checked-in tag `quay.io/modh/vllm:rhoai-3.4-cuda` is a placeholder.
+Edit [`configs/samples/model-deploy/vllm-servingruntime.yaml`](/configs/samples/model-deploy/vllm-servingruntime.yaml) and replace `image:` with the NVIDIA GPU vLLM image from that list. The checked-in tag `quay.io/modh/vllm:rhoai-3.5-cuda` is a placeholder.
 
 ## Edit the modelcar URI
 

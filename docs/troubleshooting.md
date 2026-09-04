@@ -60,7 +60,7 @@ Common failures in the Whisper workshop. Lab narrative: [Topic 7](/docs/07-troub
 
 ### Cannot record from the mic in Jupyter
 
-**Expected.** The kernel runs in the cluster. Record on the laptop and **upload**, or use `extras/audio/*.wav`. Live mic is a future OpenShift app.
+**Expected.** The kernel runs in the cluster. Record on the laptop and **upload**, or use `extras/audio/*.wav`. For a browser mic after Topic 6, see the [live-caption POC](/extras/live-caption/README.md) (deploys to `whisper-demo` by default, not `whisper-workshop`).
 
 ### Wrong `MODEL_NAME`
 

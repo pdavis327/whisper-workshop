@@ -38,7 +38,7 @@ This workbench is only an HTTP client. It does **not** need a GPU.
 5. Cluster storage: default size.
 6. Create and wait until **Running**. Open JupyterLab.
 
-More detail: [Creating a project workbench](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_on_projects/using-project-workbenches_projects) (match the doc version to your cluster).
+More detail: [Creating a project workbench](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_on_projects/using-project-workbenches_projects) (match the doc version to your cluster).
 
 ## 2. Copy the inference route
 
@@ -118,7 +118,7 @@ curl -sk -N -X POST "${ROUTE}/v1/audio/transcriptions" \
 
 - “Nothing left the cluster except HTTPS to our own route.”
 - “Spanish file in, English text out — that is Whisper `translations`, not a second LLM.”
-- “Next increment is a Route + `getUserMedia`. We did not fake a mic in Jupyter.”
+- “Next increment is [extras/live-caption](/extras/live-caption/README.md) — a Route + `getUserMedia`. We did not fake a mic in Jupyter.”
 
 ## Hands-on exercise (~15–25 min)
 

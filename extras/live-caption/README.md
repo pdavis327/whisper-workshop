@@ -4,6 +4,8 @@ Optional browser demo for the Whisper workshop. It captures microphone audio, se
 
 **This is a proof of concept, not production live captions.** It is useful to show that Whisper on vLLM works end-to-end from a browser, but it does not provide broadcast-grade accuracy or latency.
 
+**Namespace:** deploy scripts default to **`whisper-demo`**, not the workshop project `whisper-workshop`. That keeps the POC off the lab InferenceService. Export `NAMESPACE=whisper-workshop` only if you intend to colocate them.
+
 Use this document when presenting to customers, or share it directly so they understand what the demo proves, what it deliberately does not do, and how a production path fits on the Red Hat stack.
 
 ### At a glance (for presentations)
